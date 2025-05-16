@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -16,7 +17,7 @@ export default function Home() {
           <li className="mb-2 tracking-[-.01em]">
             Get started by editing{" "}
             <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
+              app/page.tsx
             </code>
             .
           </li>
@@ -49,6 +50,9 @@ export default function Home() {
           >
             Read our docs
           </a>
+          <Link href="/workshops">workshops</Link>
+          <Link href="/reservations">reservations</Link>
+          <Link href="/certificates">certificates</Link>
         </div>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">

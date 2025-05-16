@@ -1,0 +1,76 @@
+'use client';
+
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+type GlobalContextType = {
+  isAuthenticated: boolean;
+  user: null | { email: string; name: string };
+  login: (token: string, userData: { email: string; name: string }) => void;
+  logout: () => void;
+  // Tutaj możesz dodać inne globalne stany
+};
+
+const GlobalContext = createContext<GlobalContextType | null>(null);
+
+export function GlobalProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<{
+    isAuthenticated: boolean;
+    user: null | { email: string; name: string };
+  }>({
+    isAuthenticated: false,
+    user: null,
+  });
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    if (token && userData) {
+      setState({
+        isAuthenticated: true,
+        user: JSON.parse(userData),
+      });
+    }
+  }, []);
+
+  const login = (token: string, userData: { email: string; name: string }) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setState({
+      isAuthenticated: true,
+      user: userData,
+    });
+    router.push('/');
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setState({
+      isAuthenticated: false,
+      user: null,
+    });
+    router.push('/sign-in');
+  };
+
+  return (
+    <GlobalContext.Provider value={{
+      isAuthenticated: state.isAuthenticated,
+      user: state.user,
+      login,
+      logout,
+    }}>
+      {children}
+    </GlobalContext.Provider>
+  );
+}
+
+export function useGlobal() {
+  const context = useContext(GlobalContext);
+  if (!context) {
+    throw new Error('useGlobal must be used within a GlobalProvider');
+  }
+  return context;
+}
