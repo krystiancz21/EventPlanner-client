@@ -25,34 +25,48 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    if (token && userData) {
-      setState({
-        isAuthenticated: true,
-        user: JSON.parse(userData),
-      });
+    // Upewnijmy się, że kod wykonuje się tylko po stronie klienta
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (token && userData) {
+        try {
+          setState({
+            isAuthenticated: true,
+            user: JSON.parse(userData),
+          });
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          // W przypadku błędu parsowania, wyczyść dane
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
     }
   }, []);
 
   const login = (token: string, userData: { email: string; name: string }) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setState({
-      isAuthenticated: true,
-      user: userData,
-    });
-    router.push('/');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setState({
+        isAuthenticated: true,
+        user: userData,
+      });
+      router.push('/');
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setState({
-      isAuthenticated: false,
-      user: null,
-    });
-    router.push('/sign-in');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setState({
+        isAuthenticated: false,
+        user: null,
+      });
+      router.push('/sign-in');
+    }
   };
 
   return (

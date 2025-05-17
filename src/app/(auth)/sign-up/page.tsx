@@ -1,17 +1,5 @@
-// import { SignUpForm } from "@/auth/nextjs/components/SignUpForm"
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import SignUpForm from '@/components/auth/SignUpForm';
 
-// export default function SignUp() {
-//   return (
-//     <div className="container mx-auto p-4 max-w-[750px]">
-//         <SignUpForm />
-//       {/* <Card>
-//         <CardHeader>
-//           <CardTitle>Sign Up</CardTitle>
-//         </CardHeader>
-//         <CardContent>
-//         </CardContent>
-//       </Card> */}
-//     </div>
-//   )
-// }
+export default function SignUpPage() {
+  return <SignUpForm />;
+}
