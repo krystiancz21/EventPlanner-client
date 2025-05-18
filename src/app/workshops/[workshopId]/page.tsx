@@ -1,28 +1,68 @@
-export default function WorkshopId() {
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Spinner, Box, Button, Link } from '@chakra-ui/react';
+import { getWorkshop } from '@/lib/api/workshops';
+import { WorkshopDetails } from '@/components/workshop/WorkshopDetails';
+
+export default function WorkshopIdPage() {
+  const { workshopId } = useParams();
+  const router = useRouter();
+  const [workshop, setWorkshop] = useState<null | import('@/lib/api/workshops').Workshop>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!workshopId) return;
+    const id = Number(workshopId);
+    getWorkshop(id)
+      .then((data) => setWorkshop(data))
+      .catch(() => setError('Błąd ładowania danych'))
+      .finally(() => setLoading(false));
+  }, [workshopId]);
+
+  if (loading) {
+    return (
+      <Box className="min-h-screen flex items-center justify-center">
+        <Spinner />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box className="min-h-screen flex items-center justify-center text-red-500">
+        {error}
+      </Box>
+    );
+  }
+
+  if (!workshop) {
+    return (
+      <Box className="min-h-screen flex items-center justify-center">
+        Brak warsztatu
+      </Box>
+    );
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <h1 className="text-4xl font-bold">Welcome to the ID Workshop</h1>
-        <p className="text-lg">Get started by editing the code.</p>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="/workshops"
-          >
-            Go to Workshops
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+    <Box p={8}>
+      <Link href={'/workshops'}>
+        <Button 
+          as="a" 
+          size="sm"
+          bg="var(--primary)"
+          color="white"
+          _hover={{
+              bg: "var(--primary-hover)",
+              color: "white",
+              borderColor: "var(--primary-hover)"
+          }}
         >
-          Learn Next.js
-        </a>
-      </footer>
-    </div>
+          Powrót
+        </Button>
+      </Link>
+      <WorkshopDetails workshop={workshop} />
+    </Box>
   );
 }

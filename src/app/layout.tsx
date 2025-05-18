@@ -5,6 +5,7 @@ import { Provider } from "@/components/ui/provider";
 import { GlobalProvider } from "@/lib/context/GlobalDataContext";
 import Navbar from "@/components/navbar/Navbar";
 import { Toaster } from "@/components/ui/toaster";
+import { Box } from "@chakra-ui/react"; // add import for container
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +35,9 @@ export default function RootLayout({
         <Provider>
           <GlobalProvider>
             <Navbar />
-            {children}
+            <Box maxW="1200px" mx="auto" px={4}>
+              {children}
+            </Box>
             <Toaster />
           </GlobalProvider>
         </Provider>
