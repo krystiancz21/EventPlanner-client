@@ -10,6 +10,14 @@ export interface Workshop {
   organizerId: string;
 }
 
+export interface CreateWorkshopDto {
+  title: string;
+  description: string;
+  location: string;
+  date: string;
+  capacity: number;
+}
+
 export interface PagedResponse<T> {
   items: T[];
   totalPages: number;
@@ -33,10 +41,16 @@ export const getWorkshops = async (
   return response.data;
 };
 
-// Added function to fetch a single workshop by ID
 export const getWorkshop = async (
   id: number
 ): Promise<Workshop> => {
   const response = await apiClient.get<Workshop>(`/api/workshops/${id}`);
+  return response.data;
+};
+
+export const createWorkshop = async (
+  workshop: CreateWorkshopDto
+): Promise<Workshop> => {
+  const response = await apiClient.post<Workshop>('/api/workshops', workshop);
   return response.data;
 };

@@ -2,12 +2,29 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
+
+type JwtPayload = {
+  sub?: string;
+  name?: string;
+  email?: string;
+  role?: string | string[];
+  exp?: number;
+  [key: string]: any;
+};
+
+type User = {
+  email: string;
+  name: string;
+  roles: string[]; // Teraz przechowujemy role jako tablicę
+};
 
 type GlobalContextType = {
   isAuthenticated: boolean;
-  user: null | { email: string; name: string };
+  user: null | User;
   login: (token: string, userData: { email: string; name: string }) => void;
   logout: () => void;
+  hasRole: (role: string | string[]) => boolean;
   // Tutaj możesz dodać inne globalne stany
 };
 

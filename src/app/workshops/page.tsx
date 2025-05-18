@@ -1,9 +1,10 @@
 "use client";
 
-import { Box, Spinner, Heading, Text, Stack } from "@chakra-ui/react";
+import { Box, Spinner, Heading, Text, Stack, Button, Flex } from "@chakra-ui/react";
 import { getWorkshops, type Workshop } from "@/lib/api/workshops";
 import { useEffect, useState } from "react";
 import { WorkshopCard } from "@/components/workshop/WorkshopCard";
+import Link from 'next/link';
 
 export default function Workshops() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
@@ -29,7 +30,22 @@ export default function Workshops() {
 
   return (
     <Box p={8} minH="100vh">
-      <Heading mb={6}>Dostępne Warsztaty</Heading>
+      <Flex justify="space-between" align="center" mb={6}>
+        <Heading>Dostępne Warsztaty</Heading>
+        <Link href="/workshops/create" passHref>
+          <Button 
+            as="a"
+            bg="var(--primary)"
+            color="white"
+            _hover={{
+              bg: "var(--primary-hover)",
+            }}
+          >
+            Utwórz warsztat
+          </Button>
+        </Link>
+      </Flex>
+      
       {loading ? (
         <Spinner size="xl" />
       ) : error ? (
