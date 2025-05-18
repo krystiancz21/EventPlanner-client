@@ -123,7 +123,8 @@ export default function SignInForm() {
 
   return (
     <Box as="form" onSubmit={handleSubmit} width="100%">
-      <Stack gap={4}>        {error && (
+      <Stack gap={4}>
+        {error && (
           <Box bg="#FFEBEE" p={3} borderRadius="md" borderLeftWidth="4px" borderLeftColor="var(--primary)">
             <Text color="var(--primary)" fontWeight="medium">{error}</Text>
           </Box>
@@ -138,7 +139,8 @@ export default function SignInForm() {
               setEmail(e.target.value);
               if (emailError) validateEmail(e.target.value);
             }}
-            onBlur={() => validateEmail(email)}            placeholder="twoj@email.com"
+            onBlur={() => validateEmail(email)} 
+            placeholder="twoj@email.com"
             borderRadius="md"
             borderColor={emailError ? "var(--primary)" : "gray.300"}
             _hover={{ borderColor: "var(--primary)" }}
@@ -156,7 +158,8 @@ export default function SignInForm() {
               setPassword(e.target.value);
               if (passwordError) validatePassword(e.target.value);
             }}
-            onBlur={() => validatePassword(password)}            placeholder="Wprowadź hasło"
+            onBlur={() => validatePassword(password)}
+            placeholder="Wprowadź hasło"
             borderRadius="md"
             borderColor={passwordError ? "var(--primary)" : "gray.300"}
             _hover={{ borderColor: "var(--primary)" }}
@@ -175,7 +178,9 @@ export default function SignInForm() {
               style={{ marginRight: '8px' }}
             />
             <Text fontSize="sm" color="gray.700">Zapamiętaj mnie</Text>
-          </Box>          <Link href="/forgot-password" passHref style={{ outline: 'none' }}>            <Text 
+          </Box>
+          <Link href="/forgot-password" passHref style={{ outline: 'none' }}>
+            <Text 
                  fontSize="sm" 
                  color="var(--primary)" 
                  fontWeight="medium" 
@@ -185,7 +190,8 @@ export default function SignInForm() {
               Zapomniałeś hasła?
             </Text>
           </Link>
-        </Flex>          <Button
+        </Flex>
+        <Button
           type="submit"
           bg="var(--primary)"
           color="white"
@@ -193,20 +199,18 @@ export default function SignInForm() {
           mt={4}
           mb={2}
           disabled={isLoading}
-          _hover={{ bg: "var(--primary-hover)" }}          _focus={{
-            outline: 'none',
-            boxShadow: 'none'
-          }}
-          _active={{
-            bg: "var(--primary-active)",
-          }}
+          _hover={{ bg: "var(--primary-hover)" }}
+          _focus={{ outline: 'none', boxShadow: 'none' }}
+          _active={{ bg: "var(--primary-active)" }}
         >
           {isLoading ? 'Trwa logowanie...' : 'Zaloguj się'}
         </Button>
 
         <Box pt={3} textAlign="center">
           <Text fontSize="sm" color="gray.700">
-            Nie masz jeszcze konta?{' '}            <Link href="/sign-up" passHref style={{ outline: 'none' }}>              <Text 
+            Nie masz jeszcze konta?{' '}
+            <Link href="/sign-up" passHref style={{ outline: 'none' }}>
+              <Text 
                    as="span" 
                    color="var(--primary)" 
                    fontWeight="semibold" 

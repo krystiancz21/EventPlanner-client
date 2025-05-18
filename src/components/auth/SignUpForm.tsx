@@ -10,16 +10,15 @@ import {
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import { toaster } from '@/components/ui/toaster';
+import { register } from '@/lib/api/auth';
 
 export default function SignUpForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [nameError, setNameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
@@ -34,19 +33,6 @@ export default function SignUpForm() {
       return false;
     }
     setEmailError('');
-    return true;
-  };
-
-  // Walidacja pola imię i nazwisko
-  const validateName = (name: string) => {
-    if (!name) {
-      setNameError('Imię i nazwisko jest wymagane');
-      return false;
-    } else if (name.length < 3) {
-      setNameError('Imię i nazwisko musi mieć co najmniej 3 znaki');
-      return false;
-    }
-    setNameError('');
     return true;
   };
 
@@ -84,39 +70,39 @@ export default function SignUpForm() {
     
     // Walidacja danych formularza
     const isEmailValid = validateEmail(email);
-    const isNameValid = validateName(name);
     const isPasswordValid = validatePassword(password);
     const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
     
-    if (!isEmailValid || !isNameValid || !isPasswordValid || !isConfirmPasswordValid) {
+    if (!isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
       return;
     }
     
     setIsLoading(true);
 
     try {
-      // Tutaj normalnie wysłalibyśmy dane rejestracyjne do API
-      // Ale na razie tylko symulujemy to
+      // Wywołanie funkcji register z API
+      await register({ email, password });
       
-      setTimeout(() => {
-        // Pokaż komunikat o sukcesie
-        toaster.create({
-          title: 'Rejestracja zakończona powodzeniem',
-          description: 'Na Twój adres email został wysłany link aktywacyjny.',
-          type: 'success',
-          duration: 5000,
-        });
-        
-        // Czyszczenie formularza
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        setName('');
-        setIsLoading(false);
-      }, 1500);
+      // Pokaż komunikat o sukcesie
+      toaster.create({
+        title: 'Rejestracja zakończona powodzeniem',
+        description: 'Możesz się teraz zalogować.', // Zmieniono opis, bo nie ma już linku aktywacyjnego
+        type: 'success',
+        duration: 5000,
+      });
+      
+      // Czyszczenie formularza
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
     } catch (error: unknown) {
       console.error('Registration error:', error);
-      setError('Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
+      if (error instanceof Error) {
+        setError(error.message || 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
+      } else {
+        setError('Wystąpił nieznany błąd podczas rejestracji. Spróbuj ponownie.');
+      }
+    } finally {
       setIsLoading(false);
     }
   };
@@ -129,25 +115,6 @@ export default function SignUpForm() {
             <Text color="var(--primary)" fontWeight="medium">{error}</Text>
           </Box>
         )}
-        
-        <Box>
-          <Text mb={2} fontWeight="medium" color="gray.700">Imię i nazwisko</Text>
-          <Input
-            type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              if (nameError) validateName(e.target.value);
-            }}
-            onBlur={() => validateName(name)}
-            placeholder="Jan Kowalski"
-            borderRadius="md"
-            borderColor={nameError ? "var(--primary)" : "gray.300"}
-            _hover={{ borderColor: "var(--primary)" }}
-            _focus={{ borderColor: "var(--primary)", boxShadow: "0 0 0 1px var(--primary)" }}
-          />
-          {nameError && <Text color="var(--primary)" fontSize="sm" mt={1}>{nameError}</Text>}
-        </Box>
         
         <Box>
           <Text mb={2} fontWeight="medium" color="gray.700">Email</Text>
