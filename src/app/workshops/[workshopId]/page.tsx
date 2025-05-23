@@ -44,24 +44,24 @@ export default function WorkshopIdPage() {
       </Box>
     );
   }
-
   return (
     <Box p={8}>
-      <Link href={'/workshops'}>
-        <Button 
-          as="a" 
-          size="sm"
-          bg="var(--primary)"
-          color="white"
-          _hover={{
-              bg: "var(--primary-hover)",
-              color: "white",
-              borderColor: "var(--primary-hover)"
-          }}
-        >
-          Powrót
-        </Button>
-      </Link>
+      <Box mb={6}>
+        <Link href={'/workshops'}>
+          <Button 
+            size="sm"
+            bg="var(--primary)"
+            color="white"
+            _hover={{
+                bg: "var(--primary-hover)",
+                color: "white",
+                borderColor: "var(--primary-hover)"
+            }}
+          >
+            Powrót
+          </Button>
+        </Link>
+      </Box>
       <WorkshopDetails workshop={workshop} />
     </Box>
   );

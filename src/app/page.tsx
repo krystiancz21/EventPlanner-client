@@ -4,23 +4,16 @@ import { Flex, Box, Heading, Text, Button } from '@chakra-ui/react'
 import Link from 'next/link'
 
 export default function Home() {
-  // Mock danych użytkownika
-  const user = {
-    name: "Jan Kowalski",
-    email: "jan@example.com",
-    avatar: "https://bit.ly/dan-abramov"
-  }
-
   return (
-    <Flex direction="column" minH="100vh" bg="gray.50">
+    <Flex direction="column" minH="100vh">
 
       {/* Główna zawartość */}
       <Flex flex={1} p={8} direction="column" align="center" justify="center">
-        <Heading size="xl" mb={6} textAlign="center" color="gray.800">
+        <Heading size="xl" mb={6} textAlign="center">
           Witaj w EventPlanner!
         </Heading>
         
-        <Text fontSize="xl" mb={4} textAlign="center" color="gray.700">
+        <Text fontSize="xl" mb={4} textAlign="center">
           Zarządzaj swoimi wydarzeniami w jednym miejscu
         </Text>
 
