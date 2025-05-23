@@ -10,22 +10,35 @@ export default function Workshops() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
-    getWorkshops({ pageNumber: 1, pageSize: 10 })
-      .then((res) => {
-        setWorkshops(res.items);
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Failed to load workshops");
+    let mounted = true;
+
+    const fetchWorkshops = async () => {
+      try {
+        const res = await getWorkshops({ pageNumber: 1, pageSize: 10 });
+        if (mounted) {
+          setWorkshops(res.items);
         }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      } catch (err: unknown) {
+        if (mounted) {
+          if (err instanceof Error) {
+            setError(err.message);
+          } else {
+            setError("Failed to load workshops");
+          }
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchWorkshops();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
@@ -34,7 +47,7 @@ export default function Workshops() {
         <Heading>Dostępne Warsztaty</Heading>
         <Link href="/workshops/create" passHref>
           <Button 
-            as="a"
+            // as="a"
             bg="var(--primary)"
             color="white"
             _hover={{

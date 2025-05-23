@@ -1,5 +1,5 @@
 import { Box, Heading, Text, Button } from "@chakra-ui/react";
-import Link from 'next/link';
+import Link from "next/link";
 import type { Workshop } from "@/lib/api/workshops";
 
 interface WorkshopCardProps {
@@ -13,19 +13,19 @@ export const WorkshopCard = ({ workshop }: WorkshopCardProps) => (
     </Heading>
     <Text mb={2}>{workshop.description}</Text>
     <Text fontSize="sm" color="gray.500" mb={4}>
-      {new Date(workshop.date).toLocaleDateString("pl-PL")} | {workshop.location} | Pojemność: {workshop.capacity}
+      {new Date(workshop.date).toLocaleDateString("pl-PL")} |{" "}
+      {workshop.location} | Pojemność: {workshop.capacity}
     </Text>
-    {/* Button to navigate to workshop details */}
+
     <Link href={`/workshops/${workshop.id}`} passHref>
-      <Button 
-        as="a" 
+      <Button
         size="sm"
         bg="var(--primary)"
         color="white"
         _hover={{
-            bg: "var(--primary-hover)",
-            color: "white",
-            borderColor: "var(--primary-hover)"
+          bg: "var(--primary-hover)",
+          color: "white",
+          borderColor: "var(--primary-hover)",
         }}
       >
         Szczegóły
