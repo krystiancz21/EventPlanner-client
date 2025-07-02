@@ -1,27 +1,47 @@
 "use client";
 
-import { Box, Spinner, Heading, Text, Stack, Button, Flex, ButtonGroup } from "@chakra-ui/react";
-import { getWorkshops, type Workshop } from "@/lib/api/workshops";
+import {
+  Box,
+  Spinner,
+  Heading,
+  Text,
+  Stack,
+  Button,
+  Flex,
+  ButtonGroup,
+} from "@chakra-ui/react";
+import { getWorkshops, type Workshop, type PagedResponse } from "@/lib/api/workshops";
 import { useEffect, useState } from "react";
 import { WorkshopCard } from "@/components/workshop/WorkshopCard";
-import Link from 'next/link';
+import Link from "next/link";
 import { useUserRoles } from "@/lib/hooks/useUserRoles";
+import { PaginationWidget } from "@/components/ui/pagination/PaginationWidget";
+
+const PAGE_SIZE = 5;
 
 export default function Workshops() {
-  const [workshops, setWorkshops] = useState<Workshop[]>([]);
+  const [workshopsData, setWorkshopsData] = useState<PagedResponse<Workshop> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { roles } = useUserRoles();
-  const isTrainerOrAdmin = roles?.some(role => ["Trainer", "Admin"].includes(role));
+  
+  const isTrainerOrAdmin = roles?.some((role) =>
+    ["Trainer", "Admin"].includes(role)
+  );
 
   useEffect(() => {
     let mounted = true;
 
     const fetchWorkshops = async () => {
       try {
-        const res = await getWorkshops({ pageNumber: 1, pageSize: 10 });
+        setLoading(true);
+        const res = await getWorkshops({ 
+          pageNumber: currentPage, 
+          pageSize: PAGE_SIZE 
+        });
         if (mounted) {
-          setWorkshops(res.items);
+          setWorkshopsData(res);
         }
       } catch (err: unknown) {
         if (mounted) {
@@ -43,7 +63,11 @@ export default function Workshops() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <Box p={8} minH="100vh">
@@ -65,17 +89,32 @@ export default function Workshops() {
           )}
         </ButtonGroup>
       </Flex>
-      
+
       {loading ? (
         <Spinner size="xl" />
       ) : error ? (
         <Text color="red.500">{error}</Text>
+      ) : workshopsData ? (
+        <>
+          <Stack gap={4} align="stretch" mb={8}>
+            {workshopsData.items.map((w) => (
+              <WorkshopCard key={w.id} workshop={w} />
+            ))}
+          </Stack>
+
+          {workshopsData.totalItemsCount && (
+            <Flex justify="center">
+              <PaginationWidget
+                currentPage={currentPage}
+                totalItems={workshopsData.totalItemsCount}
+                pageSize={PAGE_SIZE}
+                onPageChange={handlePageChange}
+              />
+            </Flex>
+          )}
+        </>
       ) : (
-        <Stack gap={4} align="stretch">
-          {workshops.map((w) => (
-            <WorkshopCard key={w.id} workshop={w} />
-          ))}
-        </Stack>
+        <Text>Brak warsztatów do wyświetlenia</Text>
       )}
     </Box>
   );
