@@ -1,87 +1,60 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { login } from '../../lib/api/auth';
 import { useGlobal } from '@/lib/context/GlobalDataContext';
 import {
   Box,
-  Button,
-  Input,
   Text,
   Flex,
   Stack,
 } from '@chakra-ui/react';
 import { toaster } from '@/components/ui/toaster';
+import { FormInput } from '@/components/ui/form/FormInput';
+import { FormButton } from '@/components/ui/form/FormButton';
+import { authSchemas, SignInFormData } from '@/lib/validation';
 import Link from 'next/link';
 
 export default function SignInForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const { login: loginContext } = useGlobal();
 
-  // Walidacja pola email
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      setEmailError('Email jest wymagany');
-      return false;
-    } else if (!emailRegex.test(email)) {
-      setEmailError('Wprowadź poprawny adres email');
-      return false;
-    }
-    setEmailError('');
-    return true;
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(authSchemas.signIn),
+    mode: 'onBlur'
+  });
 
-  // Walidacja pola hasło
-  const validatePassword = (password: string) => {
-    if (!password) {
-      setPasswordError('Hasło jest wymagane');
-      return false;
-    } else if (password.length < 6) {
-      setPasswordError('Hasło musi mieć co najmniej 6 znaków');
-      return false;
-    }
-    setPasswordError('');
-    return true;
-  };
+  const email = watch('email');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Reset błędów
+  const onSubmit = async (data: SignInFormData) => {
     setError('');
-    
-    // Walidacja danych formularza
-    const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePassword(password);
-    
-    if (!isEmailValid || !isPasswordValid) {
-      return;
-    }
-    
     setIsLoading(true);
 
     try {
-      const response = await login({ email, password });
+      const response = await login({ email: data.email, password: data.password });
       
       if (response?.accessToken) {
         // Zapisz token w localStorage jeśli włączono "Zapamiętaj mnie"
         if (rememberMe && typeof window !== 'undefined') {
-          localStorage.setItem('rememberEmail', email);
+          localStorage.setItem('rememberEmail', data.email);
         } else if (typeof window !== 'undefined') {
           localStorage.removeItem('rememberEmail');
         }
 
         // Używamy kontekstu do zarządzania stanem logowania
         loginContext(response.accessToken, { 
-          email, 
-          name: email.split('@')[0] // Tymczasowo używamy części adresu email jako imienia
+          email: data.email, 
+          name: data.email.split('@')[0] // Tymczasowo używamy części adresu email jako imienia
         });
         
         // Pokaż komunikat o sukcesie
@@ -96,7 +69,11 @@ export default function SignInForm() {
       }
     } catch (error: unknown) {
       console.error('Login error:', error);
-      setError('Nieprawidłowe dane logowania. Spróbuj ponownie.');
+      if (error instanceof Error) {
+        setError(error.message || 'Nieprawidłowe dane logowania. Spróbuj ponownie.');
+      } else {
+        setError('Nieprawidłowe dane logowania. Spróbuj ponownie.');
+      }
       
       // Pokaż komunikat o błędzie
       toaster.create({
@@ -115,14 +92,14 @@ export default function SignInForm() {
     if (typeof window !== 'undefined') {
       const savedEmail = localStorage.getItem('rememberEmail');
       if (savedEmail) {
-        setEmail(savedEmail);
+        setValue('email', savedEmail);
         setRememberMe(true);
       }
     }
-  }, []);
+  }, [setValue]);
 
   return (
-    <Box as="form" onSubmit={handleSubmit} width="100%">
+    <Box as="form" onSubmit={handleSubmit(onSubmit)} width="100%">
       <Stack gap={4}>
         {error && (
           <Box bg="#FFEBEE" p={3} borderRadius="md" borderLeftWidth="4px" borderLeftColor="var(--primary)">
@@ -130,43 +107,23 @@ export default function SignInForm() {
           </Box>
         )}
         
-        <Box>
-          <Text mb={2} fontWeight="medium" color="gray.700">Email</Text>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (emailError) validateEmail(e.target.value);
-            }}
-            onBlur={() => validateEmail(email)} 
-            placeholder="twoj@email.com"
-            borderRadius="md"
-            borderColor={emailError ? "var(--primary)" : "gray.300"}
-            _hover={{ borderColor: "var(--primary)" }}
-            _focus={{ borderColor: "var(--primary)", boxShadow: "0 0 0 1px var(--primary)" }}
-          />
-          {emailError && <Text color="var(--primary)" fontSize="sm" mt={1}>{emailError}</Text>}
-        </Box>
+        <FormInput
+          label="Email"
+          type="email"
+          placeholder="twoj@email.com"
+          {...register('email')}
+          error={errors.email?.message}
+          required
+        />
         
-        <Box>
-          <Text mb={2} fontWeight="medium" color="gray.700">Hasło</Text>
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              if (passwordError) validatePassword(e.target.value);
-            }}
-            onBlur={() => validatePassword(password)}
-            placeholder="Wprowadź hasło"
-            borderRadius="md"
-            borderColor={passwordError ? "var(--primary)" : "gray.300"}
-            _hover={{ borderColor: "var(--primary)" }}
-            _focus={{ borderColor: "var(--primary)", boxShadow: "0 0 0 1px var(--primary)" }}
-          />
-          {passwordError && <Text color="var(--primary)" fontSize="sm" mt={1}>{passwordError}</Text>}
-        </Box>
+        <FormInput
+          label="Hasło"
+          type="password"
+          placeholder="Wprowadź hasło"
+          {...register('password')}
+          error={errors.password?.message}
+          required
+        />
         
         <Flex justify="space-between" width="full" align="center">
           <Box display="flex" alignItems="center">
@@ -191,20 +148,13 @@ export default function SignInForm() {
             </Text>
           </Link>
         </Flex>
-        <Button
-          type="submit"
-          bg="var(--primary)"
-          color="white"
-          width="100%"
-          mt={4}
-          mb={2}
-          disabled={isLoading}
-          _hover={{ bg: "var(--primary-hover)" }}
-          _focus={{ outline: 'none', boxShadow: 'none' }}
-          _active={{ bg: "var(--primary-active)" }}
+
+        <FormButton
+          isLoading={isLoading}
+          loadingText="Trwa logowanie..."
         >
-          {isLoading ? 'Trwa logowanie...' : 'Zaloguj się'}
-        </Button>
+          Zaloguj się
+        </FormButton>
 
         <Box pt={3} textAlign="center">
           <Text fontSize="sm" color="gray.700">

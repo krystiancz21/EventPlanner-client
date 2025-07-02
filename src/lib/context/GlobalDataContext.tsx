@@ -2,30 +2,17 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
-
-type JwtPayload = {
-  sub?: string;
-  name?: string;
-  email?: string;
-  role?: string | string[];
-  exp?: number;
-  [key: string]: any;
-};
 
 type User = {
   email: string;
   name: string;
-  roles: string[]; // Teraz przechowujemy role jako tablicę
 };
 
 type GlobalContextType = {
   isAuthenticated: boolean;
   user: null | User;
-  login: (token: string, userData: { email: string; name: string }) => void;
+  login: (token: string, userData: User) => void;
   logout: () => void;
-  hasRole: (role: string | string[]) => boolean;
-  // Tutaj możesz dodać inne globalne stany
 };
 
 const GlobalContext = createContext<GlobalContextType | null>(null);
@@ -33,7 +20,7 @@ const GlobalContext = createContext<GlobalContextType | null>(null);
 export function GlobalProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<{
     isAuthenticated: boolean;
-    user: null | { email: string; name: string };
+    user: null | User;
   }>({
     isAuthenticated: false,
     user: null,
@@ -62,7 +49,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = (token: string, userData: { email: string; name: string }) => {
+  const login = (token: string, userData: User) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
